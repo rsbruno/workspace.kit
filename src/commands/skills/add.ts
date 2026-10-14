@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import { registryInfo, askAgents, askSkills, planSteps, askScope } from "../../lib/questions";
+import { filterByCategory, registryInfo, askAgents, askSkills, planSteps, askScope } from "../../lib/questions";
 import { recordInstall } from "../../lib/manifest";
 import { defineCommand } from "../../lib/command";
 import { copyDir, hashDir } from "../../utils/fs";
@@ -16,7 +16,7 @@ export const add = defineCommand({
       planSteps(!names.length, !flags.scope, !flags.agent);
       const info = await registryInfo(reg);
 
-      if (!names.length) names = await askSkills(reg, info);
+      if (!names.length) names = await askSkills(reg, info, filterByCategory(reg, flags.category));
       const missing = names.filter((n) => !reg.skills.has(n));
       if (missing.length) throw new Error(`not found in ${src.repo}: ${missing.join(", ")}`);
 

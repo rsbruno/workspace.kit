@@ -9,7 +9,7 @@ import { groups } from "./commands";
 import { pkg } from "./lib/pkg";
 
 const FLAGS_HELP =
-  "flags: --agent claude|codex   --editor vscode|cursor   --scope project|global (skills) · user|project (editor)   --ref <ref>   --force   -v, --version";
+  "flags: --agent claude|codex (agents: claude→CLAUDE.md, codex→AGENTS.md)   --editor vscode|cursor   --scope project|global (skills) · user|project (editor)   --category <name,...> (skills add)   --ref <ref>   --force   -v, --version";
 
 function help() {
   header();
@@ -27,6 +27,7 @@ function parse() {
     return parseArgs({
       options: {
         version: { type: "boolean", short: "v" },
+        category: { type: "string", short: "c" },
         editor: { type: "string", short: "e" },
         force: { type: "boolean", short: "f" },
         agent: { type: "string", short: "a" },

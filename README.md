@@ -55,6 +55,14 @@ Formato: `workspace <grupo> <comando>`. Sem argumentos, a CLI pergunta o que fal
 | `workspace skills list` | Lista as skills instaladas |
 | `workspace skills update` | Atualiza as skills |
 | `workspace skills remove` | Remove skills |
+| `workspace agents add` | Escreve `CLAUDE.md` / `AGENTS.md` no projeto a partir do arquivo único do config (`--force` sobrescreve) |
+| `workspace agents list` | Mostra se `CLAUDE.md` / `AGENTS.md` estão em dia, editados ou ausentes |
+| `workspace agents update` | Atualiza os que não foram editados (`--force` sobrescreve) |
+| `workspace agents remove` | Remove os instalados e não editados (`--force` remove qualquer um) |
+| `workspace hooks add` | Instala os hooks em `.claude/hooks` e registra em `.claude/settings.json` (precisa de `jq`) |
+| `workspace hooks list` | Mostra cada hook: em dia, desatualizado ou ausente, e se está registrado |
+| `workspace hooks update` | Reinstala os hooks que diferem do repo |
+| `workspace hooks remove` | Remove os hooks e as entradas do settings |
 | `workspace editor add` | Instala configs do editor |
 | `workspace editor list` | Lista as configs instaladas |
 | `workspace editor update` | Atualiza as configs |
