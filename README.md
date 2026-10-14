@@ -59,7 +59,7 @@ Formato: `workspace <grupo> <comando>`. Sem argumentos, a CLI pergunta o que fal
 | `workspace agents list` | Mostra se `CLAUDE.md` / `AGENTS.md` estão em dia, editados ou ausentes |
 | `workspace agents update` | Atualiza os que não foram editados (`--force` sobrescreve) |
 | `workspace agents remove` | Remove os instalados e não editados (`--force` remove qualquer um) |
-| `workspace hooks add` | Instala os hooks em `.claude/hooks` e registra em `.claude/settings.json` (precisa de `jq`) |
+| `workspace hooks add` | Pergunta escopo e agente(s); instala os hooks em `<agente>/hooks` e registra no settings (precisa de `jq`) |
 | `workspace hooks list` | Mostra cada hook: em dia, desatualizado ou ausente, e se está registrado |
 | `workspace hooks update` | Reinstala os hooks que diferem do repo |
 | `workspace hooks remove` | Remove os hooks e as entradas do settings |
