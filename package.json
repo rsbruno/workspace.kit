@@ -11,6 +11,7 @@
   ],
   "config": {
     "repo": "rsbruno/workspace.config",
+    "releaseRepo": "rsbruno/workspace.kit",
     "ref": "main",
     "skillsPath": ".claude/skills",
     "vscodePath": ".vscode"
