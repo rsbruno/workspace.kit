@@ -13,7 +13,9 @@
     "repo": "rsbruno/workspace.config",
     "releaseRepo": "rsbruno/workspace.kit",
     "ref": "main",
-    "skillsPath": ".claude/skills",
+    "skillsPath": ".agents/skills",
+    "agentsPath": ".agents/agents",
+    "hooksPath": ".agents/hooks",
     "vscodePath": ".vscode"
   },
   "scripts": {

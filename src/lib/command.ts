@@ -1,4 +1,4 @@
-export type Flags = { agent?: string; editor?: string; scope?: string; ref?: string; force?: boolean };
+export type Flags = { agent?: string; editor?: string; scope?: string; category?: string; ref?: string; force?: boolean };
 
 export type Command = {
   name: string;

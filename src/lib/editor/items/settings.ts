@@ -6,6 +6,15 @@ import type { Item } from "./types";
 import { parseJsonc, removePath, writeText, readText, setPath } from "../jsonc";
 import { backupFile } from "../backup";
 
+const isPlainObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+
+function deepMerge(base: unknown, incoming: unknown): unknown {
+  if (!isPlainObject(base) || !isPlainObject(incoming)) return incoming;
+  const out: Record<string, unknown> = { ...base };
+  for (const [key, value] of Object.entries(incoming)) out[key] = key in base ? deepMerge(base[key], value) : value;
+  return out;
+}
+
 type KeyRestore = { had: boolean; prev: unknown; applied: unknown };
 type Restore = { keys: Record<string, KeyRestore> };
 
@@ -17,7 +26,8 @@ export const settings: Item = {
     const current = parseJsonc<Record<string, unknown>>(text, file);
 
     const restore: Restore = { keys: {} };
-    for (const [key, value] of Object.entries(wanted)) {
+    for (const [key, incoming] of Object.entries(wanted)) {
+      const value = key in current ? deepMerge(current[key], incoming) : incoming;
       if (isDeepStrictEqual(current[key], value)) continue;
       restore.keys[key] = { had: key in current, prev: current[key], applied: value };
       text = setPath(text, [key], value);

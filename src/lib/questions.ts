@@ -35,8 +35,17 @@ export async function registryInfo(reg: Registry): Promise<RegistryInfo> {
   return info;
 }
 
-export async function askSkills(reg: Registry, info: RegistryInfo): Promise<string[]> {
+export function filterByCategory(reg: Registry, flag?: string): string[] {
   const names = [...reg.skills.keys()].sort();
+  if (!flag) return names;
+  const wanted = flag.split(",").map((s) => s.trim());
+  const known = new Set(reg.categories.values());
+  const bad = wanted.filter((c) => !known.has(c));
+  if (bad.length) throw new Error(`unknown category: ${bad.join(", ")} (valid: ${[...known].sort().join(", ")})`);
+  return names.filter((n) => wanted.includes(reg.categories.get(n) ?? ""));
+}
+
+export async function askSkills(reg: Registry, info: RegistryInfo, names: string[]): Promise<string[]> {
   const rows = skillRows(names, info);
   return selectMany(
     "skills",
