@@ -2,12 +2,14 @@
 import { intro, outro } from "@clack/prompts";
 import { parseArgs } from "node:util";
 
+import { kitCommands } from "./commands/kit";
 import { findCommand } from "./lib/command";
 import { header } from "./ui/header";
 import { groups } from "./commands";
+import { pkg } from "./lib/pkg";
 
 const FLAGS_HELP =
-  "flags: --agent claude|codex   --editor vscode|cursor   --scope project|global (skills) · user|project (editor)   --ref <ref>   --force";
+  "flags: --agent claude|codex   --editor vscode|cursor   --scope project|global (skills) · user|project (editor)   --ref <ref>   --force   -v, --version";
 
 function help() {
   header();
@@ -17,13 +19,14 @@ function help() {
     ...commands.map((c) => `  ${c.name.padEnd(8)} ${c.description}`),
     ""
   ]);
-  console.log([...lines, FLAGS_HELP, ""].join("\n"));
+  console.log([...lines, "shortcuts: workspace update · workspace version", "", FLAGS_HELP, ""].join("\n"));
 }
 
 function parse() {
   try {
     return parseArgs({
       options: {
+        version: { type: "boolean", short: "v" },
         editor: { type: "string", short: "e" },
         force: { type: "boolean", short: "f" },
         agent: { type: "string", short: "a" },
@@ -41,8 +44,13 @@ function parse() {
 
 const { positionals, values } = parse();
 
+if (values.version) {
+  console.log(pkg.version);
+  process.exit(0);
+}
+
 const [group, action, ...rest] = positionals;
-const command = group && action ? findCommand(groups[group] ?? [], action) : undefined;
+const command = group && action ? findCommand(groups[group] ?? [], action) : group ? findCommand(kitCommands, group) : undefined;
 
 if (values.help || !command) {
   help();
@@ -51,7 +59,7 @@ if (values.help || !command) {
 
 try {
   header();
-  intro(`workspace ${group} ${command.name}`);
+  intro(action ? `workspace ${group} ${command.name}` : `workspace ${command.name}`);
   await command.run(rest, values);
   outro("done");
 } catch (e) {
