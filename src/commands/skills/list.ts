@@ -1,4 +1,4 @@
-import { planSteps, askAgent } from "../../lib/questions";
+import { AGENT_NAMES, parseAgents, parseScope, SCOPES } from "../../lib/targets";
 import { listInstalled } from "../../lib/installed";
 import { formatTokens } from "../../lib/skill-info";
 import { defineCommand } from "../../lib/command";
@@ -7,15 +7,23 @@ import { installedRows } from "../../ui/rows";
 
 export const list = defineCommand({
   run: async (_names, flags) => {
-    planSteps(!flags.agent);
-    const agent = await askAgent(flags.agent);
-    const installed = await listInstalled(agent);
-    if (!installed.length) return info(`no skills installed for ${agent}`);
+    const agents = flags.agent ? parseAgents(flags.agent) : AGENT_NAMES;
+    const scopes = flags.scope ? [parseScope(flags.scope)] : SCOPES;
 
-    const total = installed.reduce((sum, i) => sum + i.tokens, 0);
-    summary(`${installed.length} skills · ${formatTokens(total)} · ${agent}`, installedRows(installed));
+    let shown = 0;
+    for (const agent of agents) {
+      const installed = await listInstalled(agent, scopes);
+      if (!installed.length) continue;
+      shown++;
+      const total = installed.reduce((sum, i) => sum + i.tokens, 0);
+      summary(
+        `${installed.length} skills · ${formatTokens(total)} · ${agent}`,
+        installedRows(installed).map((row, i) => ({ ...row, name: `${row.name} (${installed[i]!.scope})` }))
+      );
+    }
+    if (!shown) info("no skills installed");
   },
-  description: "list installed skills (asks agent)",
+  description: "list installed skills for every agent and scope (filter with --agent / --scope)",
   aliases: ["ls"],
   name: "list"
 });

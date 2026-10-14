@@ -1,6 +1,6 @@
 import { type Installed, listInstalled } from "../../lib/installed";
+import { planSteps, askScope, askAgent } from "../../lib/questions";
 import { formatVersion, readVersion } from "../../lib/skill-info";
-import { planSteps, askAgent } from "../../lib/questions";
 import { summary, info, warn } from "../../ui/summary";
 import { recordInstall } from "../../lib/manifest";
 import { defineCommand } from "../../lib/command";
@@ -9,10 +9,11 @@ import { withRegistry } from "../../lib/session";
 
 export const update = defineCommand({
   run: async (_names, flags) => {
-    planSteps(!flags.agent);
+    planSteps(!flags.scope, !flags.agent);
+    const scope = await askScope(flags.scope);
     const agent = await askAgent(flags.agent);
-    const installed = await listInstalled(agent);
-    if (!installed.length) return info(`no skills installed for ${agent}`);
+    const installed = await listInstalled(agent, [scope]);
+    if (!installed.length) return info(`no skills installed for ${agent} · ${scope}`);
 
     await withRegistry(flags, async (reg, src) => {
       const updated: { item: Installed; detail: string }[] = [];
@@ -52,13 +53,13 @@ export const update = defineCommand({
 
       if (unmanaged.length) warn(`skipped, not installed by workspace: ${unmanaged.join(", ")}`);
       if (modified.length) warn(`skipped, edited locally (use --force): ${modified.join(", ")}`);
-      if (!updated.length) return info(`everything up to date · ${agent}`);
+      if (!updated.length) return info(`everything up to date · ${agent} · ${scope}`);
       summary(
-        `updated ${updated.length} · ${agent}`,
+        `updated ${updated.length} · ${agent} · ${scope}`,
         updated.map((u) => ({ name: u.item.name, detail: u.detail }))
       );
     });
   },
-  description: "reinstall skills that differ from the repo (asks agent)",
+  description: "reinstall skills that differ from the repo (asks scope + agent)",
   name: "update"
 });

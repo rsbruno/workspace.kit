@@ -9,13 +9,13 @@ import { withRegistry } from "../../lib/session";
 import { task } from "../../ui/task";
 
 export const add = defineCommand({
-  run: (_names, flags) =>
-    withRegistry(flags, async (reg, src) => {
+  run: async (_names, flags) => {
+    planSteps(!flags.agent);
+    const agents = await askAgents(flags.agent);
+
+    await withRegistry(flags, async (reg, src) => {
       const content = await readAgentsSource(reg);
       if (content === null) return info(`${src.repo} has no agents/AGENTS.md`);
-
-      planSteps(!flags.agent);
-      const agents = await askAgents(flags.agent);
 
       const written: string[] = [];
       const skipped: string[] = [];
@@ -50,7 +50,8 @@ export const add = defineCommand({
         `written ${written.length} · ${src.ref}`,
         written.map((name) => ({ detail: AGENT_FILES.claude === name ? "claude" : "codex", name }))
       );
-    }),
+    });
+  },
   description: "write CLAUDE.md / AGENTS.md from the shared agents file (asks agents)",
   name: "add"
 });
