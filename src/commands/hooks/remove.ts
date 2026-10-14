@@ -9,13 +9,13 @@ import { withRegistry } from "../../lib/session";
 import { pkg } from "../../lib/pkg";
 
 export const remove = defineCommand({
-  run: (_names, flags) =>
-    withRegistry(flags, async (reg) => {
-      const known = (await readdir(join(reg.base, pkg.config.hooksPath)).catch(() => [])).filter((f) => f.endsWith(".sh"));
+  run: async (_names, flags) => {
+    planSteps(!flags.scope, !flags.agent);
+    const scope = await askScope(flags.scope);
+    const agents = await askAgents(flags.agent);
 
-      planSteps(!flags.scope, !flags.agent);
-      const scope = await askScope(flags.scope);
-      const agents = await askAgents(flags.agent);
+    await withRegistry(flags, async (reg) => {
+      const known = (await readdir(join(reg.base, pkg.config.hooksPath)).catch(() => [])).filter((f) => f.endsWith(".sh"));
 
       const rows: { name: string; detail: string }[] = [];
       for (const agent of agents) {
@@ -28,7 +28,8 @@ export const remove = defineCommand({
       }
       if (!rows.length) return info(`no workspace hooks installed for ${agents.join(", ")} · ${scope}`);
       summary(`removed ${rows.length} hooks · ${scope}`, rows);
-    }),
+    });
+  },
   description: "remove guard hooks and their settings entries (asks scope + agents)",
   aliases: ["rm"],
   name: "remove"

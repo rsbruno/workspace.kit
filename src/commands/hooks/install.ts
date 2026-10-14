@@ -2,23 +2,19 @@ import { readFile, copyFile, readdir, mkdir, chmod } from "node:fs/promises";
 import { join } from "node:path";
 
 import type { Registry, Source } from "../../lib/registry";
+import type { Agent, Scope } from "../../lib/targets";
 
 import { writeSettings, type Settings, readSettings, mergeHooks, hookTarget } from "../../lib/hooks";
-import { askAgents, planSteps, askScope } from "../../lib/questions";
 import { summary, info, warn } from "../../ui/summary";
 import { task } from "../../ui/task";
 import { pkg } from "../../lib/pkg";
 
-export async function installHooks(reg: Registry, src: Source, flags: { agent?: string; scope?: string } = {}) {
+export async function installHooks(reg: Registry, src: Source, scope: Scope, agents: Agent[]) {
   const from = join(reg.base, pkg.config.hooksPath);
   const files = (await readdir(from).catch(() => [])).filter((f) => f.endsWith(".sh"));
   if (!files.length) return info(`${src.repo} has no ${pkg.config.hooksPath}`);
 
   const example = JSON.parse(await readFile(join(from, "settings.example.json"), "utf8")) as Settings;
-
-  planSteps(!flags.scope, !flags.agent);
-  const scope = await askScope(flags.scope);
-  const agents = await askAgents(flags.agent);
 
   await task("installing", "installed", async () => {
     for (const agent of agents) {

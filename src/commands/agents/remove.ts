@@ -1,15 +1,19 @@
 import { rm } from "node:fs/promises";
 
-import { AGENT_FILES_KEYS, agentFileStatus } from "../../lib/agents";
+import { askAgents, planSteps } from "../../lib/questions";
 import { summary, info, warn } from "../../ui/summary";
+import { agentFileStatus } from "../../lib/agents";
 import { forgetInstall } from "../../lib/manifest";
 import { defineCommand } from "../../lib/command";
 
 export const remove = defineCommand({
   run: async (_names, flags) => {
+    planSteps(!flags.agent);
+    const agents = await askAgents(flags.agent);
+
     const removed: string[] = [];
     const kept: string[] = [];
-    for (const agent of AGENT_FILES_KEYS) {
+    for (const agent of agents) {
       const s = await agentFileStatus(agent, null);
       if (s.state === "missing") continue;
       if (s.state !== "outdated" && !flags.force) {
@@ -27,7 +31,7 @@ export const remove = defineCommand({
       removed.map((name) => ({ detail: "agents", name }))
     );
   },
-  description: "remove CLAUDE.md / AGENTS.md installed by workspace and not edited",
+  description: "remove CLAUDE.md / AGENTS.md installed by workspace and not edited (asks agents)",
   aliases: ["rm"],
   name: "remove"
 });
