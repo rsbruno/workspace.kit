@@ -2,7 +2,7 @@ import { writeFile, readFile, rename, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 
 import { manifestPath } from "./paths";
-export type Kind = "skill" | "editor";
+export type Kind = "skill" | "editor" | "agents";
 
 export type ManifestEntry = {
   kind: Kind;

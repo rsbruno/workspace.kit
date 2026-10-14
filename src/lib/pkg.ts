@@ -6,7 +6,15 @@ type Pkg = {
   name: string;
   displayName?: string;
   version: string;
-  config: { repo: string; releaseRepo: string; ref: string; skillsPath: string; vscodePath: string };
+  config: {
+    repo: string;
+    releaseRepo: string;
+    ref: string;
+    skillsPath: string;
+    agentsPath: string;
+    hooksPath: string;
+    vscodePath: string;
+  };
 };
 
 function findPackageJson(): string {

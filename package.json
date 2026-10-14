@@ -13,7 +13,9 @@
     "repo": "rsbruno/workspace.config",
     "releaseRepo": "rsbruno/workspace.kit",
     "ref": "main",
-    "skillsPath": ".claude/skills",
+    "skillsPath": ".agents/skills",
+    "agentsPath": ".agents/agents",
+    "hooksPath": ".agents/hooks",
     "vscodePath": ".vscode"
   },
   "scripts": {
@@ -21,7 +23,9 @@
     "build": "bun build src/cli.ts --target=node --outfile=dist/cli.js && chmod +x dist/cli.js",
     "prepublishOnly": "bun run build",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint \"**/*.{ts,js,json}\"",
     "lint:fix": "eslint \"**/*.{ts,js,json}\" --fix",
+    "format:check": "prettier --check \"**/*.{ts,js,json}\"",
     "format": "prettier --write \"**/*.{ts,js,json}\"",
     "prepare": "husky || true"
   },

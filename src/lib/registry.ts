@@ -1,12 +1,19 @@
 import { writeFile, mkdtemp, readdir, access, rm } from "node:fs/promises";
+import { basename, relative, join, sep } from "node:path";
 import { spawnSync } from "node:child_process";
-import { basename, join } from "node:path";
 import { tmpdir } from "node:os";
 
 import { pkg } from "./pkg";
 
 export type Source = { repo: string; ref: string };
-export type Registry = { base: string; root: string; sha: string; skills: Map<string, string>; cleanup: () => Promise<void> };
+export type Registry = {
+  base: string;
+  root: string;
+  sha: string;
+  skills: Map<string, string>;
+  categories: Map<string, string>;
+  cleanup: () => Promise<void>;
+};
 
 export function resolveSource(flags: { ref?: string }): Source {
   return { ref: flags.ref ?? pkg.config.ref, repo: pkg.config.repo };
@@ -24,6 +31,15 @@ async function findSkills(dir: string, out = new Map<string, string>()) {
   }
   for (const e of await readdir(dir, { withFileTypes: true })) {
     if (e.isDirectory() && !e.name.startsWith(".git")) await findSkills(join(dir, e.name), out);
+  }
+  return out;
+}
+
+function categoriesOf(root: string, skills: Map<string, string>) {
+  const out = new Map<string, string>();
+  for (const [name, dir] of skills) {
+    const parts = relative(root, dir).split(sep);
+    if (parts.length > 1) out.set(name, parts[0]!);
   }
   return out;
 }
@@ -64,9 +80,11 @@ export async function openRegistry(src: Source): Promise<Registry> {
   const top = (await readdir(tmp, { withFileTypes: true })).find((e) => e.isDirectory())!.name;
   const base = join(tmp, top);
   const root = join(base, pkg.config.skillsPath);
+  const skills = await findSkills(root);
   return {
     cleanup: () => rm(tmp, { recursive: true, force: true }),
-    skills: await findSkills(root),
+    categories: categoriesOf(root, skills),
+    skills,
     base,
     root,
     sha
