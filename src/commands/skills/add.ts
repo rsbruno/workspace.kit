@@ -11,17 +11,17 @@ import { skillRows } from "../../ui/rows";
 import { task } from "../../ui/task";
 
 export const add = defineCommand({
-  run: (names, flags) =>
-    withRegistry(flags, async (reg, src) => {
-      planSteps(!names.length, !flags.scope, !flags.agent);
+  run: async (names, flags) => {
+    planSteps(!flags.scope, !flags.agent, !names.length);
+    const scope = await askScope(flags.scope);
+    const agents = await askAgents(flags.agent);
+
+    await withRegistry(flags, async (reg, src) => {
       const info = await registryInfo(reg);
 
       if (!names.length) names = await askSkills(reg, info, filterByCategory(reg, flags.category));
       const missing = names.filter((n) => !reg.skills.has(n));
       if (missing.length) throw new Error(`not found in ${src.repo}: ${missing.join(", ")}`);
-
-      const scope = await askScope(flags.scope);
-      const agents = await askAgents(flags.agent);
 
       await task("installing", "installed", async () => {
         for (const name of names) {
@@ -45,7 +45,8 @@ export const add = defineCommand({
         }
       });
       summary(`installed ${names.length} · ${agents.join(", ")} · ${scope}`, skillRows(names, info));
-    }),
+    });
+  },
   description: "install skills (asks scope + agents)",
   name: "add"
 });

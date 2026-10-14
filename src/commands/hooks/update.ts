@@ -1,7 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 
-import { AGENT_NAMES, SCOPES } from "../../lib/targets";
+import { AGENT_NAMES, type Agent, type Scope, SCOPES } from "../../lib/targets";
 import { defineCommand } from "../../lib/command";
 import { withRegistry } from "../../lib/session";
 import { hookTarget } from "../../lib/hooks";
@@ -14,7 +14,7 @@ export const update = defineCommand({
     withRegistry(flags, async (reg, src) => {
       const from = join(reg.base, pkg.config.hooksPath);
       const known = (await readdir(from).catch(() => [])).filter((f) => f.endsWith(".sh"));
-      const outdated: { agent: string; scope: string }[] = [];
+      const outdated: { agent: Agent; scope: Scope }[] = [];
       for (const scope of SCOPES) {
         for (const agent of AGENT_NAMES) {
           const dir = hookTarget(agent, scope).dir;
@@ -28,7 +28,7 @@ export const update = defineCommand({
         }
       }
       if (!outdated.length) return info("hooks up to date");
-      for (const { agent, scope } of outdated) await installHooks(reg, src, { agent, scope });
+      for (const { agent, scope } of outdated) await installHooks(reg, src, scope, [agent]);
     }),
   description: "reinstall installed hooks that differ from the repo",
   name: "update"
