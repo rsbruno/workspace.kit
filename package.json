@@ -21,7 +21,9 @@
     "build": "bun build src/cli.ts --target=node --outfile=dist/cli.js && chmod +x dist/cli.js",
     "prepublishOnly": "bun run build",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint \"**/*.{ts,js,json}\"",
     "lint:fix": "eslint \"**/*.{ts,js,json}\" --fix",
+    "format:check": "prettier --check \"**/*.{ts,js,json}\"",
     "format": "prettier --write \"**/*.{ts,js,json}\"",
     "prepare": "husky || true"
   },
