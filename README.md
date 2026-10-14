@@ -72,4 +72,12 @@ bun run dev skills list
 bun run build
 ```
 
-Contribuições entram por PR com título no formato `tipo: descrição` (por exemplo `feat: add command`). Vulnerabilidades: veja [SECURITY.md](SECURITY.md).
+Contribuições entram por PR. O título segue o formato:
+
+```
+[TIPO][ESCOPO][branch][CARD]: descrição curta
+```
+
+Exemplo: `[FEAT][KIT][feat/kit-update][LP-42]: add kit update command`. O `[CARD]` é opcional, e o `TIPO` define a versão (`FEAT` minor, `FIX` e `PERF` patch, `FEAT!` major). O check **PR Title** valida o formato.
+
+Vulnerabilidades: veja [SECURITY.md](SECURITY.md).
